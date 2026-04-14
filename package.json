@@ -8,7 +8,7 @@
     "dev:backend": "tsx watch src/server.ts",
     "build": "next build",
     "build:backend": "tsc --project tsconfig.backend.json",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "start:backend": "node dist/server.js",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",

@@ -1,27 +1,15 @@
-# Railway monorepo configuration
+# Railway configuration — single-service deployment (Hobby plan)
 # Docs: https://docs.railway.app/reference/config-as-code
+#
+# NOTE: Railway Hobby plan supports only ONE service per deployment config.
+# Multi-service [[services]] format is a Pro plan feature.
+# Frontend is deployed via this config; backend is deployed as a separate
+# Railway project/service with its own environment variables.
 
-# ---------------------------------------------------------------------------
-# Frontend service — Next.js standalone server
-# ---------------------------------------------------------------------------
-[services.frontend]
-dockerfile = "Dockerfile.frontend"
-
-[services.frontend.deploy]
-startCommand = "node server.js"
+[deploy]
+startCommand = "node .next/standalone/server.js"
 # Railway pings this path during rolling deploys; 300s allows for cold starts
 healthcheckPath = "/"
 healthcheckTimeout = 300
-
-# ---------------------------------------------------------------------------
-# Backend service — Fastify + Prisma
-# ---------------------------------------------------------------------------
-[services.backend]
-dockerfile = "Dockerfile.backend"
-
-[services.backend.deploy]
-# CMD in Dockerfile handles migrate deploy; this is the final process
-startCommand = "node dist/server.js"
-# /health is the lightweight liveness endpoint (no DB/Redis dependency)
-healthcheckPath = "/health"
-healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
