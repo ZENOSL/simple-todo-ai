@@ -1,0 +1,16 @@
+{
+  "name": "Simple Todo AI",
+  "short_name": "TodoAI",
+  "description": "用自然语言管理你的每日任务",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#4C6EF5",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

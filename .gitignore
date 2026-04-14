@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+.next/
+out/
+
+# Prisma generated client (regenerated at build time)
+# Keep prisma/schema.prisma in version control
+# but not generated client files
+prisma/generated/
+
+# Environment — NEVER commit real secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# .env.example IS committed — it is the reference template
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Railway local override
+.railway/
+
+# Internal agent & project process files (not part of the product)
+.claude/
+communication-room/
+coordinator.md
+访谈资料.md
+extensions.txt

@@ -1,0 +1,48 @@
+# ============================================================
+# Stage 1 — builder
+# Compile TypeScript and generate Prisma client
+# ============================================================
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+# Install all deps including devDeps needed for tsc + prisma generate
+RUN npm ci
+
+# Copy source and config files required for the build
+COPY . .
+
+# Compile TypeScript to dist/ using tsconfig.backend.json
+# (outDir: "dist", rootDir: "src")
+RUN npm run build:backend
+
+# Generate Prisma client for the target platform (linux-musl for Alpine)
+RUN npx prisma generate
+
+# ============================================================
+# Stage 2 — runner
+# Slim production image with only compiled output + runtime deps
+# ============================================================
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Compiled JS from tsc
+COPY --from=builder /app/dist ./dist
+
+# Runtime node_modules (includes @prisma/client with generated binaries)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Prisma schema — needed by migrate deploy at container startup
+COPY --from=builder /app/prisma ./prisma
+
+# package.json — needed so `npm run start:backend` resolves correctly
+COPY --from=builder /app/package.json ./
+
+# Backend listens on PORT (default 3001); Railway injects PORT automatically
+EXPOSE 3001
+
+# Run database migrations then start the server.
+# Using shell form so Railway's injected env vars are available.
+CMD npx prisma migrate deploy && node dist/server.js

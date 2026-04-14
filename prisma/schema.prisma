@@ -1,0 +1,103 @@
+// Prisma schema for Simple Todo AI
+// Stack: PostgreSQL 16 + Prisma 5
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionTier {
+  free
+  pro
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  none
+}
+
+enum TaskPriority {
+  high
+  medium
+  low
+}
+
+enum TaskCategory {
+  work
+  life
+  study
+}
+
+model User {
+  id               String             @id @default(uuid()) @db.Uuid
+  email            String?            @unique @db.VarChar(255)
+  passwordHash     String?            @map("password_hash") @db.VarChar(255)
+  deviceId         String?            @unique @map("device_id") @db.VarChar(255)
+  subscriptionTier SubscriptionTier   @default(free) @map("subscription_tier")
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  tasks         Task[]
+  subscription  Subscription?
+  aiUsageLogs   AiUsageLog[]
+
+  @@map("users")
+}
+
+model Task {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  title       String        @db.VarChar(500)
+  dueDate     String?       @map("due_date") @db.VarChar(50)
+  priority    TaskPriority  @default(medium)
+  category    TaskCategory  @default(life)
+  isCompleted Boolean       @default(false) @map("is_completed")
+  rawInput    String?       @map("raw_input") @db.Text
+  sortOrder   Float         @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  completedAt DateTime?     @map("completed_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Index: today's tasks query — filter by user + completion + date
+  @@index([userId, isCompleted, dueDate])
+  // Index: recent tasks list
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("tasks")
+}
+
+model Subscription {
+  id                  String             @id @default(uuid()) @db.Uuid
+  userId              String             @unique @map("user_id") @db.Uuid
+  stripeCustomerId    String?            @unique @map("stripe_customer_id") @db.VarChar(255)
+  stripeSubscriptionId String?           @unique @map("stripe_subscription_id") @db.VarChar(255)
+  status              SubscriptionStatus @default(none)
+  currentPeriodEnd    DateTime?          @map("current_period_end") @db.Timestamptz
+  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+// Persistent audit log for AI usage — Redis is authoritative for real-time counts
+model AiUsageLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  action    String   @db.VarChar(50)
+  date      DateTime @db.Date
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("ai_usage_logs")
+}
