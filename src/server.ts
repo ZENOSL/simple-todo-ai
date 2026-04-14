@@ -28,7 +28,7 @@ export async function buildApp(): Promise<FastifyInstance> {
       level: process.env.LOG_LEVEL ?? 'info',
       ...(process.env.NODE_ENV === 'development'
         ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
-        : {}),
+        : { transport: { target: 'pino/file', options: { destination: 1, sync: true } } }),
     },
     // Expose request ID in response headers for distributed tracing
     genReqId: (req) =>
@@ -161,10 +161,12 @@ export async function buildApp(): Promise<FastifyInstance> {
 // ---------------------------------------------------------------------------
 
 async function start(): Promise<void> {
+  console.log('[server] Building application...')
   const app = await buildApp()
 
   const shutdown = async (signal: string): Promise<void> => {
     app.log.info({ signal }, 'Shutdown signal received')
+    console.log(`[server] Shutdown signal received: ${signal}`)
     await app.close()
     process.exit(0)
   }
@@ -172,9 +174,13 @@ async function start(): Promise<void> {
   process.on('SIGTERM', () => shutdown('SIGTERM'))
   process.on('SIGINT', () => shutdown('SIGINT'))
 
+  console.log(`[server] Attempting to listen on ${HOST}:${PORT}...`)
   try {
     await app.listen({ port: PORT, host: HOST })
+    console.log(`[server] Server started successfully on http://${HOST}:${PORT}`)
+    console.log(`[server] Health check available at http://${HOST}:${PORT}/health`)
   } catch (err) {
+    console.error('[server] Failed to start server:', err)
     app.log.fatal({ err }, 'Failed to start server')
     process.exit(1)
   }
