@@ -18,6 +18,7 @@
  */
 
 import type { FastifyInstance } from 'fastify'
+import type { Task } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { getRedisClient } from '../lib/redis'
 import { authenticate } from '../middleware/auth'
@@ -239,7 +240,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
       today.setUTCHours(0, 0, 0, 0)
       prisma.aiUsageLog
         .create({ data: { userId, action: 'parse_task', date: today } })
-        .catch((err) => fastify.log.warn({ err }, 'Failed to write AiUsageLog'))
+        .catch((err: unknown) => fastify.log.warn({ err }, 'Failed to write AiUsageLog'))
 
       return reply.status(201).send({
         task: {
@@ -286,10 +287,10 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
       orderBy: [{ sortOrder: 'desc' }, { createdAt: 'asc' }],
     })
 
-    const completed = allTodayTasks.filter((t) => t.isCompleted).length
+    const completed = allTodayTasks.filter((t: Task) => t.isCompleted).length
 
     return reply.send({
-      tasks: allTodayTasks.map((t) => ({
+      tasks: allTodayTasks.map((t: Task) => ({
         id: t.id,
         title: t.title,
         due_date: t.dueDate,
@@ -338,7 +339,7 @@ export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
     })
 
     return reply.send({
-      tasks: tasks.map((t) => ({
+      tasks: tasks.map((t: Task) => ({
         id: t.id,
         title: t.title,
         due_date: t.dueDate,
