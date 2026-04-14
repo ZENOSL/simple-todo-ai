@@ -26,9 +26,6 @@ export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
     logger: {
       level: process.env.LOG_LEVEL ?? 'info',
-      ...(process.env.NODE_ENV === 'development'
-        ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
-        : { transport: { target: 'pino/file', options: { destination: 1, sync: true } } }),
     },
     // Expose request ID in response headers for distributed tracing
     genReqId: (req) =>
