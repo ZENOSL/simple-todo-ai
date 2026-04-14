@@ -1,32 +1,21 @@
-# 后端服务 Railway Dashboard 配置参考
+# 后端服务 Railway 配置
 # Docs: https://docs.railway.app/reference/config-as-code
 #
-# 重要：Railway 只自动读取名为 railway.toml 的文件。
-# 此文件是配置记录，不被 Railway 自动应用。
+# 使用方式（一次性 Dashboard 操作，永久生效）：
+#   Railway Dashboard → 后端服务 → Settings → Config File Path
+#   将值改为：railway.backend.toml
+#   保存后 Railway 将始终读取此文件，不再受 railway.toml 影响。
 #
-# ==============================================================
-# 在 Railway 后端服务 Settings 中手动配置以下参数：
-#
-#   Build > Dockerfile Path:   Dockerfile.backend
-#   Deploy > Start Command:    (留空，使用 Dockerfile CMD)
-#                              Dockerfile CMD 为：
-#                              npx prisma migrate deploy && node dist/server.js
-#   Deploy > Health Check Path:    /health
-#   Deploy > Health Check Timeout: 120
-#
-# 说明：
-#   - Start Command 必须留空，否则会覆盖 Dockerfile CMD，
-#     导致 prisma migrate deploy 被跳过，数据库迁移失效。
-#   - /health 路由在 src/server.ts 中已定义（无需认证）：
-#     GET /health → { status: 'ok', timestamp: '...' }
-#   - /healthz 路由为深度检查（验证 DB + Redis 连通性），
-#     不建议用于 Railway healthcheck，超时风险较高。
+# 此后所有部署均以此文件为准，无需再手动修改 Dashboard 配置。
 # ==============================================================
 
-[deploy]
+[build]
 dockerfilePath = "Dockerfile.backend"
-# Start Command 故意不设置 — 使用 Dockerfile CMD：
-#   npx prisma migrate deploy && node dist/server.js
+
+[deploy]
+# 显式声明 startCommand，防止 Railway 回退到 railway.toml 中的 "node server.js"
+# 必须包含 prisma migrate deploy，否则数据库迁移不会执行
+startCommand = "npx prisma migrate deploy && node dist/server.js"
 healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
