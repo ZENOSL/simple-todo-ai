@@ -19,6 +19,14 @@
     "noImplicitReturns": true,
     "exactOptionalPropertyTypes": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "src/app/**/*", "src/components/**/*", "src/stores/**/*", "src/hooks/**/*"]
+  "include": [
+    "src/server.ts",
+    "src/routes/**/*",
+    "src/middleware/**/*",
+    "src/services/**/*",
+    "src/lib/prisma.ts",
+    "src/lib/redis.ts",
+    "src/types/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

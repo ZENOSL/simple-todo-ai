@@ -8,7 +8,6 @@
  *   category: "work"|"life"|"study"
  */
 
-import { log } from 'node:console'
 import type { ParsedTask } from '../types'
 
 const GLM_API_BASE = process.env.GLM_API_BASE ?? 'https://open.bigmodel.cn/api/paas/v4'

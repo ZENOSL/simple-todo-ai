@@ -44,34 +44,6 @@ function priorityToSortWeight(priority: TaskPriority): number {
   return weights[priority] ?? 0.5
 }
 
-/**
- * Determine whether a task's due_date falls within today (UTC).
- */
-function isTodayUtc(dueDateStr: string | null): boolean {
-  if (!dueDateStr) return false
-  const today = new Date().toISOString().slice(0, 10) // "YYYY-MM-DD"
-  return dueDateStr.startsWith(today)
-}
-
-/**
- * Determine whether a task's due_date falls within the current UTC week
- * (Monday 00:00 to Sunday 23:59).
- */
-function isThisWeekUtc(dueDateStr: string | null): boolean {
-  if (!dueDateStr) return false
-  const now = new Date()
-  const day = now.getUTCDay() // 0=Sun, 1=Mon...
-  const monday = new Date(now)
-  monday.setUTCDate(now.getUTCDate() - ((day + 6) % 7))
-  monday.setUTCHours(0, 0, 0, 0)
-  const sunday = new Date(monday)
-  sunday.setUTCDate(monday.getUTCDate() + 6)
-  sunday.setUTCHours(23, 59, 59, 999)
-
-  const due = new Date(dueDateStr)
-  return due >= monday && due <= sunday
-}
-
 export async function taskRoutes(fastify: FastifyInstance): Promise<void> {
   // All task routes require authentication
   fastify.addHook('preHandler', authenticate)
