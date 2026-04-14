@@ -12,12 +12,12 @@ RUN npm ci
 # Copy source and config files required for the build
 COPY . .
 
+# Generate Prisma client first — tsc needs the generated types
+RUN npx prisma generate
+
 # Compile TypeScript to dist/ using tsconfig.backend.json
 # (outDir: "dist", rootDir: "src")
 RUN npm run build:backend
-
-# Generate Prisma client for the target platform (linux-musl for Alpine)
-RUN npx prisma generate
 
 # ============================================================
 # Stage 2 — runner
