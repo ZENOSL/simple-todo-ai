@@ -20,3 +20,9 @@ healthcheckPath = "/health"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+[variables]
+# Append ?sslmode=require to force SSL when connecting to the postgres-ssl:18 image.
+# Without this, Prisma's migrate deploy (and the app itself) fails with
+# "SSL error: unexpected eof while reading" / "Connection reset by peer".
+DATABASE_URL = "${{ Postgres.DATABASE_URL }}?sslmode=require"
