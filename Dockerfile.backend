@@ -5,6 +5,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# OpenSSL is required by Prisma schema engine (Rust binary)
+RUN apk add --no-cache openssl
+
 COPY package*.json ./
 # Install all deps including devDeps needed for tsc + prisma generate
 RUN npm ci
@@ -25,6 +28,10 @@ RUN npm run build:backend
 # ============================================================
 FROM node:20-alpine AS runner
 WORKDIR /app
+
+# OpenSSL is required by Prisma schema engine at runtime
+# (prisma migrate deploy runs in CMD before starting the server)
+RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 
