@@ -47,9 +47,13 @@ COPY --from=builder /app/prisma ./prisma
 # package.json — needed so `npm run start:backend` resolves correctly
 COPY --from=builder /app/package.json ./
 
+# Startup script — runs migrations, then execs the server as PID 1
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
+
 # Backend listens on PORT (default 3001); Railway injects PORT automatically
 EXPOSE 3001
 
-# Run database migrations then start the server.
-# Using shell form so Railway's injected env vars are available.
-CMD npx prisma migrate deploy && node dist/server.js
+# Use exec form with an explicit shell so all output is flushed and the
+# node process becomes PID 1 (receives signals correctly).
+CMD ["/bin/sh", "./start.sh"]
