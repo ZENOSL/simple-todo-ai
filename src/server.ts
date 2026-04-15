@@ -159,11 +159,16 @@ export async function buildApp(): Promise<FastifyInstance> {
 
 async function start(): Promise<void> {
   console.log('[server] Building application...')
-  const app = await buildApp()
+  let app: FastifyInstance
+  try {
+    app = await buildApp()
+  } catch (err) {
+    console.error('[server] Failed to build app:', err)
+    process.exit(1)
+  }
 
   const shutdown = async (signal: string): Promise<void> => {
     app.log.info({ signal }, 'Shutdown signal received')
-    console.log(`[server] Shutdown signal received: ${signal}`)
     await app.close()
     process.exit(0)
   }
@@ -174,13 +179,14 @@ async function start(): Promise<void> {
   console.log(`[server] Attempting to listen on ${HOST}:${PORT}...`)
   try {
     await app.listen({ port: PORT, host: HOST })
-    console.log(`[server] Server started successfully on http://${HOST}:${PORT}`)
-    console.log(`[server] Health check available at http://${HOST}:${PORT}/health`)
+    console.log(`[server] Server started on http://${HOST}:${PORT}`)
   } catch (err) {
     console.error('[server] Failed to start server:', err)
-    app.log.fatal({ err }, 'Failed to start server')
     process.exit(1)
   }
 }
 
-start()
+start().catch((err) => {
+  console.error('[server] Unhandled startup error:', err)
+  process.exit(1)
+})
