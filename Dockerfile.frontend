@@ -22,6 +22,12 @@ RUN npm ci
 # Copy full source tree
 COPY . .
 
+# NEXT_PUBLIC_API_URL must be baked in at build time —
+# Next.js writes rewrites into routes-manifest.json during next build.
+# Railway passes service env vars as build args automatically.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Build Next.js — outputs to .next/standalone (requires output:'standalone'
 # in next.config.ts) plus .next/static for static assets
 RUN npm run build

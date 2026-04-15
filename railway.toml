@@ -1,18 +1,11 @@
 # Railway 前端服务配置 (Next.js standalone)
 # Docs: https://docs.railway.app/reference/config-as-code
-#
-# 此文件仅对连接该仓库的「前端」服务生效。
-# Next.js standalone 输出的入口点是 .next/standalone/server.js，
-# startCommand 使用 "node server.js" 是因为 Dockerfile.frontend 的
-# WORKDIR 已经指向 standalone 目录。
-#
-# 后端服务的配置参见 railway.backend.toml（仅作参考，需在 Dashboard 手动设置）。
+
+[build]
+dockerfilePath = "Dockerfile.frontend"
 
 [deploy]
-# Next.js standalone server — Dockerfile.frontend 的 CMD 已正确设置，
-# 此处显式声明以防 Railway 使用默认 npm start
 startCommand = "node server.js"
-# Next.js 根路径返回 200，适合作为前端健康检查路径
 healthcheckPath = "/"
 healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
