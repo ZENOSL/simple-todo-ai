@@ -37,5 +37,5 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./
 
 # EXPOSE 3001
-CMD node dist/server.js
-# CMD npx prisma migrate deploy && node dist/server.js
+# CMD node dist/server.js
+CMD npx prisma migrate deploy && node dist/server.js
