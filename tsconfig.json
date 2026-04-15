@@ -32,6 +32,7 @@
     "src/middleware",
     "src/services",
     "src/lib/prisma.ts",
-    "src/lib/redis.ts"
+    "src/lib/redis.ts",
+    "src/types"
   ]
 }
