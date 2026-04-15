@@ -28,6 +28,9 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
+# Generate Prisma types so backend files imported transitively don't break tsc
+RUN npx prisma generate
+
 # Build Next.js — outputs to .next/standalone (requires output:'standalone'
 # in next.config.ts) plus .next/static for static assets
 RUN npm run build
