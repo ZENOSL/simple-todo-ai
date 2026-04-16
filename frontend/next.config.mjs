@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Required for Railway / Docker deployment — outputs a self-contained
   // Node.js server in .next/standalone that does not need the full
   // node_modules tree at runtime.
