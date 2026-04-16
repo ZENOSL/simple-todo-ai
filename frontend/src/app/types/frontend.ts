@@ -2,9 +2,12 @@
    Simple Todo AI — 前端专用类型定义
    ============================================================ */
 
-import type { TaskPriority, TaskCategory } from "../../types/index";
-
-export type { TaskPriority, TaskCategory };
+/**
+ * 以下类型从 backend/src/types/index.ts 镜像而来，值必须与后端完全一致。
+ * 拆分为独立前后端目录后，不再通过相对路径跨目录 import。
+ */
+export type TaskPriority = "high" | "medium" | "low";
+export type TaskCategory = "work" | "life" | "study";
 
 export type TaskStatus = "pending" | "completed" | "parsing";
 
