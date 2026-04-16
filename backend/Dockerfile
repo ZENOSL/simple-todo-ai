@@ -1,32 +1,33 @@
 # ============================================================
 # Stage 1 — builder
-# Compile TypeScript and generate Prisma client
+# Install all dependencies and compile TypeScript
+# Build context: repository root (Railway default)
 # ============================================================
 FROM node:20-slim AS builder
 WORKDIR /app
 
-# OpenSSL is required by Prisma schema engine
 RUN apt-get update && apt-get install -y openssl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-COPY package*.json ./
+# Copy backend package files first for layer cache efficiency
+COPY backend/package*.json ./
 RUN npm ci
 
-COPY . .
+# Copy backend source (src/, prisma/, tsconfig.json, etc.)
+COPY backend/ .
 
-# Generate Prisma client first — tsc needs the generated types
+# Generate Prisma client from schema
 RUN npx prisma generate
 
-# Compile TypeScript to dist/
-RUN npm run build:backend
+# Compile TypeScript → dist/
+RUN npm run build
 
 # ============================================================
 # Stage 2 — runner
-# Slim production image with only compiled output + runtime deps
+# Minimal production image
 # ============================================================
 FROM node:20-slim AS runner
 WORKDIR /app
 
-# OpenSSL required by Prisma at runtime (prisma migrate deploy)
 RUN apt-get update && apt-get install -y openssl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
@@ -36,6 +37,4 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./
 
-# EXPOSE 3001
-# CMD node dist/server.js
 CMD npx prisma migrate deploy && node dist/server.js

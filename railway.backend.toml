@@ -10,7 +10,7 @@
 # ==============================================================
 
 [build]
-dockerfilePath = "Dockerfile.backend"
+dockerfilePath = "backend/Dockerfile"
 
 [deploy]
 # 显式声明 startCommand，防止 Railway 回退到 railway.toml 中的 "node server.js"

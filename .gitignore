@@ -12,6 +12,7 @@ out/
 # Keep prisma/schema.prisma in version control
 # but not generated client files
 prisma/generated/
+**/prisma/generated/
 
 # Environment — NEVER commit real secrets
 .env

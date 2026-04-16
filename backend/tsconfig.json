@@ -26,7 +26,8 @@
     "src/services/**/*",
     "src/lib/prisma.ts",
     "src/lib/redis.ts",
-    "src/types/**/*"
+    "src/types/**/*",
+    "src/ai/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
